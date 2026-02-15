@@ -28,7 +28,7 @@ contract Voting is Ownable {
 
     mapping(address => Voter) public whiteList;
     Proposal[] public proposals;
-    uint public winningProposalId;
+    uint private winningProposalId;
 
     event VoterRegistered(address voterAddress);
     event WorkflowStatusChange(
@@ -94,8 +94,10 @@ contract Voting is Ownable {
             status == WorkflowStatus.VotingSessionStarted,
             "Voting session havent started yet"
         );
-        status = WorkflowStatus.VotingSessionEnded;
+        status = WorkflowStatus.VotesTallied;
         emit WorkflowStatusChange(WorkflowStatus.VotingSessionStarted, status);
+
+
     }
 
     function registerProposals(string calldata _proposal) external {
@@ -132,5 +134,10 @@ contract Voting is Ownable {
         }
 
         emit Voted(msg.sender, _proposalId);
+    }
+
+    function getWinner() external view returns (uint) {
+        require(status == WorkflowStatus.VotesTallied, "Votes are not tallied");
+        return winningProposalId;
     }
 }
